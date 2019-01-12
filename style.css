@@ -1,0 +1,94 @@
+body {
+    background-color: #aaa;
+}
+
+#keyboard {
+    height: 200px;
+    width: 350px;
+}
+
+#keyboard div {
+    float: left;
+}
+
+#keyboard span {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.black-key {
+    position: relative;
+    color: #fff;
+    background-color: #000;
+    width: 28px;
+    height: 138px;
+    border: #666 solid 1px;
+    margin-left: -16px;
+    margin-right: -16px;
+    z-index: 1;
+}
+
+.black-key:hover {
+    background-color: #333;
+}
+
+.black-key:active, .black-key.active {
+    background-color: #666;
+}
+
+.white-key {
+    position: relative;
+    color: #000;
+    background-color: #fff;
+    width: 48px;
+    height: 198px;
+    border: #666 solid 1px;
+    z-index: 0;
+}
+
+.white-key:hover {
+    background-color: #ccc;
+}
+
+.white-key:active, .white-key.active {
+    background-color: #999;
+}
+
+#bars {
+    width: 348px;
+    height: 298px;
+    border: #666 solid 1px;
+    margin-bottom: -1px;
+    overflow: hidden;
+    position: relative;
+}
+
+#bars div {
+    position: absolute;
+    animation: drop 5s linear infinite;
+}
+
+#bars div.line {
+    width: 100%;
+    height: 1px;
+    z-index: -1;
+    background-color: #666;
+}
+
+#bars div.white-bar {
+    width: 50px;
+    background-color: #00f;
+}
+
+#bars div.black-bar {
+    width: 30px;
+    background-color: #f00;
+}
+
+@keyframes drop {
+    from {top: -100px;}
+    to {top: 350px;}
+}
