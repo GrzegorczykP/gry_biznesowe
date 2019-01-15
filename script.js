@@ -1,6 +1,6 @@
 let global = {
     keyboard: {
-        notes: ['c', 'c+', 'd', 'd+', 'e', 'f', 'f+', 'g', 'g+', 'a', 'a+', 'h'],
+        notes: ['c', 'c+', 'd', 'd+', 'e', 'f', 'f+', 'g', 'g+', 'a', 'a+', 'h', 'c2', 'c2+'],
         keysOnKeyboard: {
             's': {},
             'e': {},
@@ -13,7 +13,9 @@ let global = {
             'u': {},
             'j': {},
             'i': {},
-            'k': {}
+            'k': {},
+            'l': {},
+            'p': {}
         },
         sounds: {},
 
@@ -90,10 +92,12 @@ let global = {
             'g+': 235,
             'a': 250,
             'a+': 285,
-            'h': 300
+            'h': 300,
+            'c2': 350,
+            'c2+': 400
         },
 
-        generateLines: function (duration) {
+        generateLines: function (delay) {
             let that = this;
             let barsWindow = document.querySelector("#bars");
             let line = document.createElement("div");
@@ -103,31 +107,93 @@ let global = {
 
             setTimeout(function () {
                 barsWindow.removeChild(line);
-            }, 5000);
-
-            setTimeout(function () {
-                that.generateLines(duration);
-            }, duration);
-            //60000/tempo*4
+            }, 8000);
         },
 
-        generateBar: function (tone, noteType, duration, metrum) {
+        generateBar: function (tone, noteType, wholeNoteDuration) {
             let barsWindow = document.querySelector("#bars");
             let bar = document.createElement("div");
-            if (tone.length > 1)
+            if (tone.indexOf('+') !== -1)
                 bar.classList.add("black-bar");
             else
-                bar.classList.add("white-list");
+                bar.classList.add("white-bar");
 
             bar.style.left = this.coordinates[tone] + "px";
-            bar.style.height = (duration/500000)*metrum*noteType + "px";
-            this.generateLines(duration);
+            let height = noteType * wholeNoteDuration / 10;
+            bar.style.height = height + "px";
 
-            barsWindow.appendChild(bar);
+            setTimeout(function () {
+                barsWindow.appendChild(bar);
+            }, height * 10);
 
             setTimeout(function () {
                 barsWindow.removeChild(bar);
-            }, 5000);
+            }, 8000);
+        }
+    },
+
+    songs: {
+        note: function (note, noteType) {
+            this.note = note;
+            this.noteType = noteType;
+        },
+
+        song: function (measure, tempo, notesArray) {
+            this.measure = measure;
+            this.tempo = tempo;
+            this.notes = notesArray;
+        },
+
+        loadedSong: {},
+
+        music: {"measure":"4/4","tempo":25,"notes":[{"note":"e","noteType":0.25},{"note":"e","noteType":0.25},{"note":"f","noteType":0.25},{"note":"g","noteType":0.25},{"note":"g","noteType":0.25},{"note":"f","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.25},{"note":"c","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.25},{"note":"e","noteType":0.375},{"note":"d","noteType":0.125},{"note":"d","noteType":0.5},{"note":"e","noteType":0.25},{"note":"e","noteType":0.25},{"note":"f","noteType":0.25},{"note":"g","noteType":0.25},{"note":"g","noteType":0.25},{"note":"f","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.25},{"note":"c","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.375},{"note":"c","noteType":0.125},{"note":"c","noteType":0.5},{"note":"d","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.125},{"note":"f","noteType":0.125},{"note":"e","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.125},{"note":"f","noteType":0.125},{"note":"e","noteType":0.25},{"note":"d","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"g","noteType":0.25},{"note":"e","noteType":0.25},{"note":"e","noteType":0.25},{"note":"e","noteType":0.25},{"note":"f","noteType":0.25},{"note":"g","noteType":0.25},{"note":"g","noteType":0.25},{"note":"f","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.25},{"note":"c","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.375},{"note":"c","noteType":0.125},{"note":"c","noteType":0.5}]},
+
+        playSong: function (iterator, wnd, callback) {
+            let that = this;
+            let song = that.loadedSong;
+            if (song.notes[iterator] === undefined) {
+                callback.apply();
+                return;
+            }
+            global.bars.generateBar(song.notes[iterator].note, song.notes[iterator].noteType, wnd);
+            setTimeout(function () {
+                that.playSong(++iterator, wnd, callback);
+            }, wnd * song.notes[iterator].noteType);
+        },
+
+        play: function () {
+            let that = this;
+            let metrum = that.loadedSong.measure.split('/')[0] / that.loadedSong.measure.split('/')[1];
+            let delay = 60 / that.loadedSong.tempo * metrum;
+            global.bars.generateLines();
+            let generatingLines = setInterval(global.bars.generateLines, delay * 1000);
+            that.playSong(0, delay * 1000, function () {
+                clearInterval(generatingLines);
+                setTimeout(function () {
+                    window.confirm("Koniec piosenki");
+                }, 8500);
+            });
+        },
+
+        loadSong: function (name) {
+            let that = this;
+            that.loadedSong = new that.song(that.music.measure, that.music.tempo, that.music.notes);
+        },
+
+        writeSong: function () {
+            let that = this;
+            let song = new that.song("4/4", 25, []);
+            let note;
+            do {
+                let sound = window.prompt("nuta i rodzaj");
+                let data = sound.split(' ');
+                console.log(data);
+                note = new that.note(data[0], eval(data[1]));
+                console.log(note);
+                song.notes.push(note);
+            }while(note.noteType !== -1);
+
+            console.log(JSON.stringify(song));
         }
     },
 

@@ -4,7 +4,7 @@ body {
 
 #keyboard {
     height: 200px;
-    width: 350px;
+    width: 450px;
 }
 
 #keyboard div {
@@ -17,6 +17,7 @@ body {
     left: 0;
     width: 100%;
     text-align: center;
+    user-select: none;
 }
 
 .black-key {
@@ -58,7 +59,7 @@ body {
 }
 
 #bars {
-    width: 348px;
+    width: 448px;
     height: 298px;
     border: #666 solid 1px;
     margin-bottom: -1px;
@@ -68,7 +69,7 @@ body {
 
 #bars div {
     position: absolute;
-    animation: drop 5s linear infinite;
+    animation: drop 8s linear infinite;
 }
 
 #bars div.line {
@@ -79,16 +80,18 @@ body {
 }
 
 #bars div.white-bar {
-    width: 50px;
+    width: 48px;
+    border: #aaa solid 1px;
     background-color: #00f;
 }
 
 #bars div.black-bar {
-    width: 30px;
+    width: 28px;
+    border: #aaa solid 1px;
     background-color: #f00;
 }
 
 @keyframes drop {
-    from {top: -100px;}
-    to {top: 350px;}
+    from {top: -400px;}
+    to {top: 400px;}
 }
