@@ -7,25 +7,41 @@
     <script src="script.js"></script>
 </head>
 <body>
-<div id="bars">
-<div style="width: 10px; height: 100px; background-color: black; top: -500px"></div>
-</div>
-<div id="keyboard">
-    <div class="white-key"><span>S</span></div>
-    <div class="black-key"><span>E</span></div>
-    <div class="white-key"><span>D</span></div>
-    <div class="black-key"><span>R</span></div>
-    <div class="white-key"><span>F</span></div>
-    <div class="white-key"><span>G</span></div>
-    <div class="black-key"><span>Y</span></div>
-    <div class="white-key"><span>H</span></div>
-    <div class="black-key"><span>U</span></div>
-    <div class="white-key"><span>J</span></div>
-    <div class="black-key"><span>I</span></div>
-    <div class="white-key"><span>K</span></div>
-    <div class="white-key"><span>L</span></div>
-    <div class="black-key"><span>P</span></div>
-    <div class="white-key"></div>
+<div class="center">
+    <div id="play-zone">
+        <div id="bars"></div>
+        <div id="keyboard">
+            <div class="white-key"><span>S</span></div>
+            <div class="black-key"><span>E</span></div>
+            <div class="white-key"><span>D</span></div>
+            <div class="black-key"><span>R</span></div>
+            <div class="white-key"><span>F</span></div>
+            <div class="white-key"><span>G</span></div>
+            <div class="black-key"><span>Y</span></div>
+            <div class="white-key"><span>H</span></div>
+            <div class="black-key"><span>U</span></div>
+            <div class="white-key"><span>J</span></div>
+            <div class="black-key"><span>I</span></div>
+            <div class="white-key"><span>K</span></div>
+            <div class="white-key"><span>L</span></div>
+            <div class="black-key"><span>P</span></div>
+            <div class="white-key"></div>
+        </div>
+    </div>
+    <div id="song-select">
+        <input type="button" value="Oda do radości"
+               onclick="global.buttons.selectClick(this, 'Beethoven - Theme from Ode to Joy')"/>
+        <input type="button" value="Cicha noc" onclick="global.buttons.selectClick(this, 'Silent Night')"/>
+        <input type="button" value="Twinkle, twinkle, little star"
+               onclick="global.buttons.selectClick(this, 'Twinkle twinkle little star')"/>
+        <input type="button" value="Amazing Grace" onclick="global.buttons.selectClick(this, 'Amazing Grace')"/>
+        <input type="button" value="Joy to the World" onclick="global.buttons.selectClick(this, 'Joy to the World')"/>
+    </div>
+    <div style="clear: both"></div>
+    <div id="play-mode">
+        <input type="button" value="Playback" onclick="global.buttons.play(this, true)" style="margin-right: 5px;"/>
+        <input type="button" value="Graj" onclick="global.buttons.play(this)"/>
+    </div>
 </div>
 </body>
 </html>

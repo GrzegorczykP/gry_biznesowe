@@ -48,8 +48,8 @@ let global = {
                 });
             });
 
-            document.addEventListener("keypress", this.keyPress);
-            document.addEventListener("keyup", this.keyRelease);
+            window.addEventListener("keypress", this.keyPress);
+            window.addEventListener("keyup", this.keyRelease);
         },
 
         play: function (note) {
@@ -81,6 +81,7 @@ let global = {
 
     bars: {
         coordinates: {
+            '0': -100,
             'c': 0,
             'c+': 35,
             'd': 50,
@@ -94,11 +95,10 @@ let global = {
             'a+': 285,
             'h': 300,
             'c2': 350,
-            'c2+': 400
+            'c2+': 385
         },
 
-        generateLines: function (delay) {
-            let that = this;
+        generateLines: function () {
             let barsWindow = document.querySelector("#bars");
             let line = document.createElement("div");
             line.classList.add("line");
@@ -107,10 +107,10 @@ let global = {
 
             setTimeout(function () {
                 barsWindow.removeChild(line);
-            }, 8000);
+            }, 13000);
         },
 
-        generateBar: function (tone, noteType, wholeNoteDuration) {
+        generateBar: function (tone, noteType, wholeNoteDuration, autoPlay = false) {
             let barsWindow = document.querySelector("#bars");
             let bar = document.createElement("div");
             if (tone.indexOf('+') !== -1)
@@ -119,7 +119,7 @@ let global = {
                 bar.classList.add("white-bar");
 
             bar.style.left = this.coordinates[tone] + "px";
-            let height = noteType * wholeNoteDuration / 10;
+            let height = Math.floor(noteType * wholeNoteDuration / 10) - 2;
             bar.style.height = height + "px";
 
             setTimeout(function () {
@@ -128,7 +128,19 @@ let global = {
 
             setTimeout(function () {
                 barsWindow.removeChild(bar);
-            }, 8000);
+            }, 13000);
+
+            if(autoPlay === true) {
+                let keyboard = global.keyboard;
+
+                setTimeout(function () {
+                    keyboard.play(tone);
+                }, 8000);
+
+                setTimeout(function () {
+                    keyboard.stop(tone);
+                }, 8000 + height * 10);
+            }
         }
     },
 
@@ -146,38 +158,55 @@ let global = {
 
         loadedSong: {},
 
-        music: {"measure":"4/4","tempo":25,"notes":[{"note":"e","noteType":0.25},{"note":"e","noteType":0.25},{"note":"f","noteType":0.25},{"note":"g","noteType":0.25},{"note":"g","noteType":0.25},{"note":"f","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.25},{"note":"c","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.25},{"note":"e","noteType":0.375},{"note":"d","noteType":0.125},{"note":"d","noteType":0.5},{"note":"e","noteType":0.25},{"note":"e","noteType":0.25},{"note":"f","noteType":0.25},{"note":"g","noteType":0.25},{"note":"g","noteType":0.25},{"note":"f","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.25},{"note":"c","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.375},{"note":"c","noteType":0.125},{"note":"c","noteType":0.5},{"note":"d","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.125},{"note":"f","noteType":0.125},{"note":"e","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.125},{"note":"f","noteType":0.125},{"note":"e","noteType":0.25},{"note":"d","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"g","noteType":0.25},{"note":"e","noteType":0.25},{"note":"e","noteType":0.25},{"note":"e","noteType":0.25},{"note":"f","noteType":0.25},{"note":"g","noteType":0.25},{"note":"g","noteType":0.25},{"note":"f","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.25},{"note":"c","noteType":0.25},{"note":"c","noteType":0.25},{"note":"d","noteType":0.25},{"note":"e","noteType":0.25},{"note":"d","noteType":0.375},{"note":"c","noteType":0.125},{"note":"c","noteType":0.5}]},
-
-        playSong: function (iterator, wnd, callback) {
+        playSong: function (iterator, wnd, callback, autoPlay = false) {
             let that = this;
             let song = that.loadedSong;
             if (song.notes[iterator] === undefined) {
                 callback.apply();
                 return;
             }
-            global.bars.generateBar(song.notes[iterator].note, song.notes[iterator].noteType, wnd);
+            global.bars.generateBar(song.notes[iterator].note, song.notes[iterator].noteType, wnd, autoPlay);
             setTimeout(function () {
-                that.playSong(++iterator, wnd, callback);
+                that.playSong(++iterator, wnd, callback, autoPlay);
             }, wnd * song.notes[iterator].noteType);
         },
 
-        play: function () {
+        play: function (elem, autoPlay = false) {
             let that = this;
             let metrum = that.loadedSong.measure.split('/')[0] / that.loadedSong.measure.split('/')[1];
-            let delay = 60 / that.loadedSong.tempo * metrum;
+            let delay = 60 / that.loadedSong.tempo * 1000;
+            let buttons = document.querySelectorAll("#play-mode input[type='button'], #song-select input[type='button']");
+            buttons.forEach(function (value) {
+                value.disabled = true;
+            });
+
             global.bars.generateLines();
-            let generatingLines = setInterval(global.bars.generateLines, delay * 1000);
-            that.playSong(0, delay * 1000, function () {
+            let generatingLines = setInterval(global.bars.generateLines, delay * metrum);
+            that.playSong(0, delay, function () {
                 clearInterval(generatingLines);
                 setTimeout(function () {
-                    window.confirm("Koniec piosenki");
-                }, 8500);
-            });
+                    elem.classList.remove("active");
+                    buttons.forEach(function (value) {
+                        value.disabled = false;
+                    });
+                }, 10000);
+            }, autoPlay);
+            that.countdown(5);
         },
 
-        loadSong: function (name) {
+        loadSong: function (name, elem) {
             let that = this;
-            that.loadedSong = new that.song(that.music.measure, that.music.tempo, that.music.notes);
+
+            let xmlHttpRequest = new XMLHttpRequest();
+            xmlHttpRequest.overrideMimeType("application/json");
+            xmlHttpRequest.open('GET', 'songs/'+name+'.json', true);
+            xmlHttpRequest.onreadystatechange = function () {
+                if (xmlHttpRequest.readyState === 4 && xmlHttpRequest.status === 200) {
+                    that.loadedSong = JSON.parse(xmlHttpRequest.responseText);
+                    elem.classList.add('active');
+                }
+            };
+            xmlHttpRequest.send(null);
         },
 
         writeSong: function () {
@@ -194,6 +223,49 @@ let global = {
             }while(note.noteType !== -1);
 
             console.log(JSON.stringify(song));
+        },
+
+        countdown: function (time) {
+            if (time <= 0) {
+                let overlay = document.querySelector("#overlay");
+                document.querySelector("body").removeChild(overlay);
+                return;
+            } else if (document.querySelector("#overlay span") === null) {
+                let overlay = document.createElement("div");
+                overlay.id = "overlay";
+                let timer = document.createElement("span");
+                timer.innerText = time;
+                overlay.appendChild(timer);
+                document.querySelector("body").appendChild(overlay);
+            } else {
+                document.querySelector("#overlay span").innerText = time;
+            }
+            setTimeout(function () {
+                global.songs.countdown(time-1);
+            }, 1000);
+        }
+    },
+
+    buttons: {
+        selectClick: function (elem, name) {
+            let buttons = document.querySelectorAll("#song-select input[type='button']");
+            buttons.forEach(function (value) {
+                value.classList.remove('active');
+            });
+            global.songs.loadSong(name, elem);
+        },
+
+        play: function (elem, autoPlay = false) {
+            if(global.songs.loadedSong.notes === undefined) {
+                alert("Nie wybrano utworu");
+            } else {
+                let buttons = document.querySelectorAll("#play-mode input[type='button']");
+                buttons.forEach(function (value) {
+                    value.classList.remove('active');
+                });
+                elem.classList.add('active');
+                global.songs.play(elem, autoPlay);
+            }
         }
     },
 
